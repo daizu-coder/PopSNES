@@ -71,6 +71,11 @@ if ((v) > 32767) \
 
 static int wave[SOUND_BUFFER_SIZE];
 
+/* One noise generator shared by all noise channels, clocked at the FLG
+ * noise rate (as on the real DSP). Filled once per mix call. */
+static int16_t NoiseBuf[SOUND_BUFFER_SIZE];
+static uint32 NoiseCount;
+
 //extern int Echo [24000];
 extern int MixBuffer [SOUND_BUFFER_SIZE];
 //extern int EchoBuffer [SOUND_BUFFER_SIZE];
@@ -231,6 +236,66 @@ void S9xSetSoundSample(int channel, uint16 sample_number)
 }
 #endif
 
+// BRR decoding exactly like the DSP (blargg's SPC_DSP.cpp): the filter works
+// on 15-bit values, the result is clamped to 16 bits and then doubled, which
+// wraps. Drivers rely on that overflow: a short looped block with a filter
+// then gives non-repeating noise (Chou Makai-Mura's thunder). The older
+// decoders here never clamp or wrap, so such loops came out as a pure tone.
+static void DecodeBlockDSP(const int8_t* compressed, int16* raw, int32* prev0,
+                           int32* prev1)
+{
+   uint8_t header = (uint8_t) * compressed++;
+   int shift = header >> 4;
+   int filter = (header >> 2) & 3;
+   int p1 = (int16) * prev0;
+   int p2 = (int16) * prev1;
+   int i;
+
+   for (i = 0; i < 16; i++)
+   {
+      int nibble = (i & 1) ? ((int8_t)(compressed[i >> 1] << 4) >> 4)
+                           : ((int8_t) compressed[i >> 1] >> 4);
+      int s, h;
+
+      if (shift <= 12)
+         s = (nibble << shift) >> 1;
+      else
+         s = nibble < 0 ? -2048 : 0;
+
+      h = p2 >> 1;
+      switch (filter)
+      {
+      case 1:
+         s += p1 >> 1;
+         s += (-p1) >> 5;
+         break;
+      case 2:
+         s += p1;
+         s -= h;
+         s += h >> 4;
+         s += (p1 * -3) >> 6;
+         break;
+      case 3:
+         s += p1;
+         s -= h;
+         s += (p1 * -13) >> 7;
+         s += (h * 3) >> 4;
+         break;
+      }
+      if (s > 32767)
+         s = 32767;
+      else if (s < -32768)
+         s = -32768;
+      s = (int16)(s * 2);
+
+      raw[i] = (int16) s;
+      p2 = p1;
+      p1 = s;
+   }
+   *prev0 = p1;
+   *prev1 = p2;
+}
+
 static void DecodeBlock(Channel* ch)
 {
    int16* raw;
@@ -260,7 +325,9 @@ static void DecodeBlock(Channel* ch)
 
    raw = ch->block = ch->decoded;
 
-#ifdef ASM_SPC700
+#if 1
+   DecodeBlockDSP(compressed, raw, &ch->previous [0], &ch->previous [1]);
+#elif defined(ASM_SPC700)
    DecodeBlockAsm(compressed, raw, &ch->previous [0], &ch->previous [1]);
 #else
    compressed++;
@@ -351,11 +418,35 @@ static void DecodeBlock(Channel* ch)
 }
 
 
+static void GenerateNoise(int count)
+{
+   uint32 step = ((uint32) NoiseFreq [APU.DSP [APU_FLG] & 0x1f] * so.freqbase) >> 11;
+   int i;
+
+   for (i = 0; i < count; i++)
+   {
+      NoiseCount += step;
+      while (NoiseCount >= FIXED_POINT)
+      {
+         // Snes9x 1.53's SPC_DSP.cpp, by blargg
+         int feedback = (so.noise_gen << 13) ^ (so.noise_gen << 14);
+         so.noise_gen = (feedback & 0x4000) ^ (so.noise_gen >> 1);
+         NoiseCount -= FIXED_POINT;
+      }
+      // 15-bit noise doubled to full 16-bit range, like the DSP does.
+      NoiseBuf[i] = (int16_t)(so.noise_gen << 1);
+   }
+}
+
 static void MixStereo(int sample_count)
 {
    int pitch_mod = SoundData.pitch_mod & (0xFFFFFFFF ^ APU.DSP[APU_NON]); //~APU.DSP[APU_NON];
 
    uint32 J;
+
+   if (APU.DSP[APU_NON])
+      GenerateNoise(sample_count / 2);
+
    for (J = 0; J < NUM_CHANNELS; J++)
    {
       uint32 I;
@@ -583,6 +674,9 @@ static void MixStereo(int sample_count)
 
                         S9xAPUSetEndX(J);
                         ch->last_block    = FALSE;
+                        // SRCN is re-read at every loop, like the DSP: drivers change it
+                        // mid-note so the loop jumps into another sample.
+                        ch->sample_number = APU.DSP [APU_SRCN + (J << 4)];
                         dir               = S9xGetSampleAddress(ch->sample_number);
                         ch->block_pointer = *(dir + 1);
                      }
@@ -609,20 +703,7 @@ static void MixStereo(int sample_count)
                   ch->interpolate = 0;
             }
             else
-            {
-#if 1
-               // Snes9x 1.53's SPC_DSP.cpp, by blargg
-               int feedback = (so.noise_gen << 13) ^ (so.noise_gen << 14);
-               so.noise_gen = (feedback & 0x4000) ^ (so.noise_gen >> 1);
-               ch->sample = (so.noise_gen << 17) >> 17;
-               ch->interpolate = 0;
-#else
-               for (; VL > 0; VL--)
-                  if ((so.noise_gen <<= 1) & 0x80000000L)
-                     so.noise_gen ^= 0x0040001L;
-               ch->sample = (so.noise_gen << 17) >> 17;
-#endif
-            }
+               ch->interpolate = 0; // noise: output comes from NoiseBuf below
 
             VL = (ch->sample * ch-> left_vol_level) / 128;
             VR = (ch->sample * ch->right_vol_level) / 128;
@@ -638,6 +719,13 @@ static void MixStereo(int sample_count)
                VL = (ch->sample * ch-> left_vol_level) / 128;
                VR = (ch->sample * ch->right_vol_level) / 128;
             }
+         }
+
+         if (ch->type != SOUND_SAMPLE)
+         {
+            ch->sample = NoiseBuf [I / 2];
+            VL = (ch->sample * ch-> left_vol_level) / 128;
+            VR = (ch->sample * ch->right_vol_level) / 128;
          }
 
          if (pitch_mod & (1 << (J + 1)))
@@ -661,6 +749,10 @@ static void MixMono(int sample_count)
    int pitch_mod = SoundData.pitch_mod & (0xFFFFFFFF ^ APU.DSP[APU_NON]);
 
    uint32 J;
+
+   if (APU.DSP[APU_NON])
+      GenerateNoise(sample_count);
+
    for (J = 0; J < NUM_CHANNELS; J++)
    {
       int32 V;
@@ -879,6 +971,9 @@ static void MixMono(int sample_count)
                         uint16 *dir;
 
                         ch->last_block    = FALSE;
+                        // SRCN is re-read at every loop, like the DSP: drivers change it
+                        // mid-note so the loop jumps into another sample.
+                        ch->sample_number = APU.DSP [APU_SRCN + (J << 4)];
                         dir               = S9xGetSampleAddress(ch->sample_number);
                         ch->block_pointer = *(dir + 1);
                         S9xAPUSetEndX(J);
@@ -893,14 +988,13 @@ static void MixMono(int sample_count)
             else
                ch->next_sample = ch->block [ch->sample_pointer];
 
-            if (ch->type != SOUND_SAMPLE)
-            {
-               for (; V > 0; V--)
-                  if ((so.noise_gen <<= 1) & 0x80000000L)
-                     so.noise_gen ^= 0x0040001L;
-               ch->sample = (so.noise_gen << 17) >> 17;
-            }
             V = (ch->sample * ch-> left_vol_level) / 128;
+         }
+
+         if (ch->type != SOUND_SAMPLE)
+         {
+            ch->sample = NoiseBuf [I];
+            V = (ch->sample * ch->left_vol_level) / 128;
          }
 
          MixBuffer [I] += V;

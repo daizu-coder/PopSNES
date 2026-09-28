@@ -126,7 +126,9 @@ Apu01_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1e]
+  ldrb  r1,[r0,#0x1e+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1e]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -540,7 +542,9 @@ Apu0F_13:
   orr   spc_p,spc_p,#flag_b
   bic   spc_p,spc_p,#flag_i
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x20]
+  ldrb  r1,[r0,#0x20+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x20]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -568,7 +572,9 @@ Apu11_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1c]
+  ldrb  r1,[r0,#0x1c+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1c]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -1052,7 +1058,9 @@ Apu21_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1a]
+  ldrb  r1,[r0,#0x1a+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1a]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -1457,7 +1465,9 @@ Apu31_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x18]
+  ldrb  r1,[r0,#0x18+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x18]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -1924,7 +1934,9 @@ Apu41_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x16]
+  ldrb  r1,[r0,#0x16+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x16]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -2348,7 +2360,9 @@ Apu51_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x14]
+  ldrb  r1,[r0,#0x14+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x14]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -2764,7 +2778,9 @@ Apu61_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x12]
+  ldrb  r1,[r0,#0x12+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x12]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -3186,7 +3202,9 @@ Apu71_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x10]
+  ldrb  r1,[r0,#0x10+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x10]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -3607,7 +3625,9 @@ Apu81_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xe]
+  ldrb  r1,[r0,#0xe+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xe]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -4115,7 +4135,9 @@ Apu91_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xc]
+  ldrb  r1,[r0,#0xc+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xc]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -4655,7 +4677,9 @@ ApuA1_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xa]
+  ldrb  r1,[r0,#0xa+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xa]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -5163,7 +5187,9 @@ ApuB1_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x8]
+  ldrb  r1,[r0,#0x8+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x8]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -5681,7 +5707,9 @@ ApuC1_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x6]
+  ldrb  r1,[r0,#0x6+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x6]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -6058,7 +6086,9 @@ ApuD1_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x4]
+  ldrb  r1,[r0,#0x4+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x4]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -6470,7 +6500,9 @@ ApuE1_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x2]
+  ldrb  r1,[r0,#0x2+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x2]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -6815,7 +6847,9 @@ ApuF1_13:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x0]
+  ldrb  r1,[r0,#0x0+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x0]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#104
   ldrgeb opcode,[spc_pc],#1
@@ -7190,7 +7224,9 @@ Apu01_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1e]
+  ldrb  r1,[r0,#0x1e+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1e]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -7604,7 +7640,9 @@ Apu0F_14:
   orr   spc_p,spc_p,#flag_b
   bic   spc_p,spc_p,#flag_i
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x20]
+  ldrb  r1,[r0,#0x20+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x20]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -7632,7 +7670,9 @@ Apu11_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1c]
+  ldrb  r1,[r0,#0x1c+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1c]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -8116,7 +8156,9 @@ Apu21_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1a]
+  ldrb  r1,[r0,#0x1a+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1a]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -8521,7 +8563,9 @@ Apu31_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x18]
+  ldrb  r1,[r0,#0x18+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x18]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -8988,7 +9032,9 @@ Apu41_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x16]
+  ldrb  r1,[r0,#0x16+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x16]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -9412,7 +9458,9 @@ Apu51_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x14]
+  ldrb  r1,[r0,#0x14+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x14]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -9828,7 +9876,9 @@ Apu61_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x12]
+  ldrb  r1,[r0,#0x12+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x12]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -10250,7 +10300,9 @@ Apu71_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x10]
+  ldrb  r1,[r0,#0x10+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x10]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -10671,7 +10723,9 @@ Apu81_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xe]
+  ldrb  r1,[r0,#0xe+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xe]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -11179,7 +11233,9 @@ Apu91_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xc]
+  ldrb  r1,[r0,#0xc+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xc]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -11719,7 +11775,9 @@ ApuA1_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xa]
+  ldrb  r1,[r0,#0xa+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xa]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -12227,7 +12285,9 @@ ApuB1_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x8]
+  ldrb  r1,[r0,#0x8+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x8]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -12745,7 +12805,9 @@ ApuC1_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x6]
+  ldrb  r1,[r0,#0x6+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x6]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -13122,7 +13184,9 @@ ApuD1_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x4]
+  ldrb  r1,[r0,#0x4+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x4]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -13534,7 +13598,9 @@ ApuE1_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x2]
+  ldrb  r1,[r0,#0x2+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x2]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -13879,7 +13945,9 @@ ApuF1_14:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x0]
+  ldrb  r1,[r0,#0x0+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x0]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#112
   ldrgeb opcode,[spc_pc],#1
@@ -14254,7 +14322,9 @@ Apu01_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1e]
+  ldrb  r1,[r0,#0x1e+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1e]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -14668,7 +14738,9 @@ Apu0F_15:
   orr   spc_p,spc_p,#flag_b
   bic   spc_p,spc_p,#flag_i
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x20]
+  ldrb  r1,[r0,#0x20+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x20]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -14696,7 +14768,9 @@ Apu11_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1c]
+  ldrb  r1,[r0,#0x1c+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1c]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -15180,7 +15254,9 @@ Apu21_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1a]
+  ldrb  r1,[r0,#0x1a+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1a]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -15585,7 +15661,9 @@ Apu31_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x18]
+  ldrb  r1,[r0,#0x18+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x18]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -16052,7 +16130,9 @@ Apu41_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x16]
+  ldrb  r1,[r0,#0x16+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x16]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -16476,7 +16556,9 @@ Apu51_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x14]
+  ldrb  r1,[r0,#0x14+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x14]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -16892,7 +16974,9 @@ Apu61_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x12]
+  ldrb  r1,[r0,#0x12+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x12]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -17314,7 +17398,9 @@ Apu71_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x10]
+  ldrb  r1,[r0,#0x10+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x10]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -17735,7 +17821,9 @@ Apu81_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xe]
+  ldrb  r1,[r0,#0xe+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xe]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -18243,7 +18331,9 @@ Apu91_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xc]
+  ldrb  r1,[r0,#0xc+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xc]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -18783,7 +18873,9 @@ ApuA1_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xa]
+  ldrb  r1,[r0,#0xa+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xa]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -19291,7 +19383,9 @@ ApuB1_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x8]
+  ldrb  r1,[r0,#0x8+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x8]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -19809,7 +19903,9 @@ ApuC1_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x6]
+  ldrb  r1,[r0,#0x6+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x6]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -20186,7 +20282,9 @@ ApuD1_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x4]
+  ldrb  r1,[r0,#0x4+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x4]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -20598,7 +20696,9 @@ ApuE1_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x2]
+  ldrb  r1,[r0,#0x2+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x2]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -20943,7 +21043,9 @@ ApuF1_15:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x0]
+  ldrb  r1,[r0,#0x0+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x0]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#120
   ldrgeb opcode,[spc_pc],#1
@@ -21318,7 +21420,9 @@ Apu01_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1e]
+  ldrb  r1,[r0,#0x1e+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1e]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -21732,7 +21836,9 @@ Apu0F_21:
   orr   spc_p,spc_p,#flag_b
   bic   spc_p,spc_p,#flag_i
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x20]
+  ldrb  r1,[r0,#0x20+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x20]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -21760,7 +21866,9 @@ Apu11_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1c]
+  ldrb  r1,[r0,#0x1c+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1c]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -22244,7 +22352,9 @@ Apu21_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x1a]
+  ldrb  r1,[r0,#0x1a+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x1a]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -22649,7 +22759,9 @@ Apu31_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x18]
+  ldrb  r1,[r0,#0x18+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x18]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -23116,7 +23228,9 @@ Apu41_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x16]
+  ldrb  r1,[r0,#0x16+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x16]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -23540,7 +23654,9 @@ Apu51_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x14]
+  ldrb  r1,[r0,#0x14+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x14]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -23956,7 +24072,9 @@ Apu61_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x12]
+  ldrb  r1,[r0,#0x12+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x12]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -24378,7 +24496,9 @@ Apu71_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x10]
+  ldrb  r1,[r0,#0x10+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x10]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -24799,7 +24919,9 @@ Apu81_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xe]
+  ldrb  r1,[r0,#0xe+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xe]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -25307,7 +25429,9 @@ Apu91_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xc]
+  ldrb  r1,[r0,#0xc+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xc]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -25847,7 +25971,9 @@ ApuA1_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0xa]
+  ldrb  r1,[r0,#0xa+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0xa]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -26355,7 +26481,9 @@ ApuB1_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x8]
+  ldrb  r1,[r0,#0x8+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x8]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -26873,7 +27001,9 @@ ApuC1_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x6]
+  ldrb  r1,[r0,#0x6+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x6]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -27250,7 +27380,9 @@ ApuD1_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x4]
+  ldrb  r1,[r0,#0x4+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x4]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -27662,7 +27794,9 @@ ApuE1_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x2]
+  ldrb  r1,[r0,#0x2+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x2]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1
@@ -28007,7 +28141,9 @@ ApuF1_21:
   mov   r0,r0,lsr #8
   strb  r0,[r1,#0x100]
   ldr   r0,[context,#iapu_extraram]
-  ldrh  r0,[r0,#0x0]
+  ldrb  r1,[r0,#0x0+1]      @ APU.ExtraRAM is at an odd offset (0x8B) in SAPU;
+  ldrb  r0,[r0,#0x0]        @ ldrh here faulted (Datatype Misalignment) on CE.
+  orr   r0,r0,r1,lsl #8
   add   spc_pc,spc_ram,r0
   subs   cycles,cycles,#168
   ldrgeb opcode,[spc_pc],#1

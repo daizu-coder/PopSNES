@@ -322,8 +322,9 @@ static INLINE void S9xSetSoundFrequency(int channel, int hertz)  // hertz [0~64K
 {
    if (so.playback_rate)
    {
-      if (SoundData.channels[channel].type == SOUND_NOISE)
-         hertz = NoiseFreq [APU.DSP [APU_FLG] & 0x1f];
+      /* Noise channels keep their pitch here: the DSP still steps
+       * the BRR decoder at the voice pitch; the noise itself comes
+       * from one shared generator clocked by FLG (soundux.c). */
 #if 0 // notaz: this compiles to something awful
       SoundData.channels[channel].frequency = (int)
                                               (((int64) hertz * FIXED_POINT) / so.playback_rate);

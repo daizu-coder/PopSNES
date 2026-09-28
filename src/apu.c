@@ -456,12 +456,13 @@ void S9xResetAPU(void)
 }
 
 extern int framecpto;
+
 void S9xSetAPUDSP(uint8 byte)
 {
    uint8 reg = IAPU.RAM [0xf2];
    static uint8 KeyOn;
    static uint8 KeyOnPrev;
-   int i;
+
 
    /*    char str[64];
        if (byte!=0)
@@ -496,12 +497,10 @@ void S9xSetAPUDSP(uint8 byte)
          else
             S9xSetSoundMute(FALSE);
 
+         /* The noise rate is read from APU.DSP[APU_FLG] by the mixer's
+          * shared noise generator (soundux.c), so there's nothing
+          * per-channel to update here. */
          SoundData.noise_hertz = NoiseFreq [byte & 0x1f];
-         for (i = 0; i < 8; i++)
-         {
-            if (SoundData.channels [i].type == SOUND_NOISE)
-               S9xSetSoundFrequency(i, SoundData.noise_hertz);
-         }
       }
       break;
    case APU_NON:

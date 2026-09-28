@@ -430,6 +430,19 @@ static void snes_init (void)
 #endif
 	Settings.SpeedHacks = TRUE;
 
+	/* Route S-DD1 DMA transfers through the on-the-fly bitplane
+	 * decompressor (src/sdd1emu.c's SDD1_decompress(), fully
+	 * implemented) instead of the precomputed-index path (the
+	 * Settings.SDD1Pack == FALSE branch in src/dma.c), which depends on
+	 * S9xLoadSDD1Data() - a no-op stub a few hundred lines below in this
+	 * file. With that stub never populating Memory.SDD1Index, the
+	 * precomputed path's bsearch() always misses and DMA falls back to
+	 * copying the still-compressed ROM bytes straight into VRAM/CGRAM
+	 * unchanged, corrupting any S-DD1-compressed graphics (e.g. Street
+	 * Fighter Zero 2's CAPCOM logo, round 15 hardware report) while
+	 * leaving CPU-driven sound/animation untouched. */
+	Settings.SDD1Pack = TRUE;
+
 	Settings.HBlankStart = (256 * Settings.H_Max) / SNES_HCOUNTER_MAX;
 
    Settings.InterpolatedSound = TRUE;
