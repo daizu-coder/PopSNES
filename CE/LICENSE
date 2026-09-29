@@ -1,0 +1,165 @@
+PopSNES - License
+=================
+
+PopSNES is an unofficial, non-commercial port of the snes9x2002
+libretro core to the SHARP Brain PW-G5200 (Windows CE, ARM). Its license
+has two levels.
+
+1. PopSNES as a whole: the Snes9x license (non-commercial only)
+----------------------------------------------------------------------
+
+PopSNES as a whole (AppMain.exe, and the source published in this
+repository) is distributed on the same terms as upstream snes9x2002:
+the original Snes9x license, reproduced in full in section 3 below (and
+in LICENSES/LicenseRef-Snes9x.txt). It is a NON-COMMERCIAL /
+personal-use license: PopSNES may not be sold, bundled with anything
+sold, or distributed only to people who paid. It is not an OSI/FSF-free
+license.
+
+The upstream files are not all under this one license: the DSP-1 code
+in src/dsp1emu.c (by the ZSNES Team, compiled in through src/dsp1.c)
+is under the GNU GPL, version 2 or later, and some upstream files
+carry no license notice at all. This file does not state a single
+license for the whole beyond "the same terms as upstream"; see
+CE/THIRDPARTY_LICENSES.txt for each part.
+
+2. PopSNES's own code: MIT
+----------------------------------------------------------------------
+
+This MIT license covers only PopSNES's own code listed in CE/LICENSING.md
+(the files marked "SPDX-License-Identifier: MIT": the CE/ frontend
+except the font data, the mascot images and the icon). PopSNES as a
+whole is distributed on the same terms as upstream (section 1):
+non-commercial only.
+
+Copyright (c) 2026 daizu-coder
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+The mascot images and the app icon (CE/icon/popsnes_mascot.bmp,
+CE/icon/popsnes.ico and .github/images/popsnes_mascot_B_tetsunagi_4x.png)
+are not covered by this MIT license: they are dedicated to the public
+domain under CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/).
+The icon was made with AI (Claude) from the Pop series mascot.
+
+The README screenshots (.github/screenshots/) are not covered by any
+license of this repository; see CE/THIRDPARTY_LICENSES.txt.
+
+The font data (CE/ce_shinonome16.h, CE/ce_galmuri14.h, CE/ce_galmuri11.h)
+is not covered by this MIT license either; see CE/THIRDPARTY_LICENSES.txt.
+
+3. The Snes9x license (full text, from the core source file headers)
+----------------------------------------------------------------------
+
+The emulation core under src/ and libretro/ carries the following
+license (except the files noted in section 1). No game ROMs, BIOS images, or other Nintendo copyrighted
+material are included in or required by this repository.
+
+----------------------------------------------------------------------
+Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
+
+  (c) Copyright 1996 - 2002 Gary Henderson (gary.henderson@ntlworld.com) and
+                            Jerremy Koot (jkoot@snes9x.com)
+
+  (c) Copyright 2001 - 2004 John Weidman (jweidman@slip.net)
+
+  (c) Copyright 2002 - 2004 Brad Jorsch (anomie@users.sourceforge.net),
+                            funkyass (funkyass@spam.shaw.ca),
+                            Joel Yliluoma (http://iki.fi/bisqwit/)
+                            Kris Bleakley (codeviolation@hotmail.com),
+                            Matthew Kendora,
+                            Nach (n-a-c-h@users.sourceforge.net),
+                            Peter Bortas (peter@bortas.org) and
+                            zones (kasumitokoduck@yahoo.com)
+
+  C4 x86 assembler and some C emulation code
+  (c) Copyright 2000 - 2003 zsKnight (zsknight@zsnes.com),
+                            _Demo_ (_demo_@zsnes.com), and Nach
+
+  C4 C++ code
+  (c) Copyright 2003 Brad Jorsch
+
+  C4 C code
+  (c) Copyright 2001 Gary Henderson (gary.henderson@ntlworld.com)
+
+  DSP-1 emulator code
+  (c) Copyright 1998 - 2004 Ivar (ivar@snes9x.com), _Demo_, Gary Henderson,
+                            John Weidman, neviksti (neviksti@hotmail.com),
+                            Kris Bleakley, Andreas Naive
+
+  DSP-2 emulator code
+  (c) Copyright 2003 Kris Bleakley, John Weidman, neviksti, Matthew Kendora, and
+                     Lord Nightmare (lord_nightmare@users.sourceforge.net
+
+  OBC1 emulator code
+  (c) Copyright 2001 - 2004 zsKnight, pagefault (pagefault@zsnes.com) and
+                            Kris Bleakley
+  Ported from x86 assembler to C by sanmaiwashi
+
+  SPC7110 and RTC C++ emulator code
+  (c) Copyright 2002 Matthew Kendora with research by
+                     zsKnight, John Weidman, and Dark Force
+
+  S-DD1 C emulator code
+  (c) Copyright 2003 Brad Jorsch with research by
+                     Andreas Naive and John Weidman
+
+  S-RTC C emulator code
+  (c) Copyright 2001 John Weidman
+
+  ST010 C++ emulator code
+  (c) Copyright 2003 Feather, Kris Bleakley, John Weidman and Matthew Kendora
+
+  Super FX x86 assembler emulator code
+  (c) Copyright 1998 - 2003 zsKnight, _Demo_, and pagefault
+
+  Super FX C emulator code
+  (c) Copyright 1997 - 1999 Ivar, Gary Henderson and John Weidman
+
+  SH assembler code partly based on x86 assembler code
+  (c) Copyright 2002 - 2004 Marcus Comstedt (marcus@mc.pp.se)
+
+  (c) Copyright 2014 - 2016 Daniel De Matteis. (UNDER NO CIRCUMSTANCE
+  WILL COMMERCIAL RIGHTS EVER BE APPROPRIATED TO ANY PARTY)
+
+  Specific ports contains the works of other authors. See headers in
+  individual files.
+
+  Snes9x homepage: http://www.snes9x.com
+
+  Permission to use, copy, modify and distribute Snes9x in both binary and
+  source form, for non-commercial purposes, is hereby granted without fee,
+  providing that this license information and copyright notice appear with
+  all copies and any derived work.
+
+  This software is provided 'as-is', without any express or implied
+  warranty. In no event shall the authors be held liable for any damages
+  arising from the use of this software.
+
+  Snes9x is freeware for PERSONAL USE only. Commercial users should
+  seek permission of the copyright holders first. Commercial use includes
+  charging money for Snes9x or software derived from Snes9x.
+
+  The copyright holders request that bug fixes and improvements to the code
+  should be forwarded to them so everyone can benefit from the modifications
+  in future versions.
+
+  Super NES and Super Nintendo Entertainment System are trademarks of
+  Nintendo Co., Limited and its subsidiary companies.
+----------------------------------------------------------------------
