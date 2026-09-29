@@ -83,7 +83,7 @@ backups/
 !/CE/icon/*.ico
 !/CE/icon/*.bmp
 # ...and the one mascot PNG shown at the top of .github/README.md
-!/.github/images/popsnes_mascot_B_tetsunagi_4x.png
+!/.github/images/popsnes_mascot_C_osanpo_4x.png
 # ...and the README screenshots (see "Screenshots/" above: keep them even
 # on a case-insensitive checkout)
 !/.github/screenshots/

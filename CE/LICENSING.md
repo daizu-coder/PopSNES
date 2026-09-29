@@ -59,7 +59,7 @@ PopSNES の自作部分は、MIT ライセンスです。本文は [`LICENSE`](L
 
 ## 4. マスコットの絵とアイコン: CC0 1.0
 
-メニューのマスコットの絵(`CE/icon/popsnes_mascot.bmp`)、アプリのアイコン(`CE/icon/popsnes.ico`、`AppMain.exe` に入っているもの)、README の先頭の絵(`.github/images/popsnes_mascot_B_tetsunagi_4x.png`)は、[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)(パブリックドメイン)です。アイコンは、Pop シリーズのマスコットをもとに AI(Claude)で作りました。
+メニューのマスコットの絵(`CE/icon/popsnes_mascot.bmp`)、アプリのアイコン(`CE/icon/popsnes.ico`、`AppMain.exe` に入っているもの)、README の先頭の絵(`.github/images/popsnes_mascot_C_osanpo_4x.png`)は、[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)(パブリックドメイン)です。アイコンは、Pop シリーズのマスコットをもとに AI(Claude)で作りました。
 
 README のスクリーンショット(`.github/screenshots/`)は、lunoka 氏のゲーム「Mai Nurse」を作者の許可を得て掲載しているもので、このリポジトリのライセンスの対象外です。
 

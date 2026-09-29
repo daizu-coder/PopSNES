@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/popsnes_mascot_B_tetsunagi_4x.png" width="520" alt="PopSNES">
+  <img src="images/popsnes_mascot_C_osanpo_4x.png" width="520" alt="PopSNES">
 </p>
 <h1 align="center">PopSNES</h1>
 <p align="center">

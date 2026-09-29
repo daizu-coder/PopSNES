@@ -458,7 +458,7 @@ PopSNES menu mascot and app icon (CE/icon/)
 -------------------------------------------
 Files: CE/icon/popsnes_mascot.bmp (the main-menu mascot),
 CE/icon/popsnes.ico (the AppMain.exe icon) and
-.github/images/popsnes_mascot_B_tetsunagi_4x.png (the mascot shown at
+.github/images/popsnes_mascot_C_osanpo_4x.png (the mascot shown at
 the top of .github/README.md).
 The mascot drawings were made with AI (Claude) for this port. The icon
 was made with AI (Claude) from the Pop series mascot.
