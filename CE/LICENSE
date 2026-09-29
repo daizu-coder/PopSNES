@@ -68,8 +68,9 @@ is not covered by this MIT license either; see CE/THIRDPARTY_LICENSES.txt.
 ----------------------------------------------------------------------
 
 The emulation core under src/ and libretro/ carries the following
-license (except the files noted in section 1). No game ROMs, BIOS images, or other Nintendo copyrighted
-material are included in or required by this repository.
+license (except the files noted in section 1). No game ROMs or other
+Nintendo copyrighted material are included in or required by this
+repository.
 
 ----------------------------------------------------------------------
 Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.

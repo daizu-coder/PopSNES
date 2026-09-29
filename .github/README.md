@@ -36,7 +36,7 @@ PopSNES 全体は、上流と同じ条件(Snes9x の非商用ライセンス)で
 
 「スーパーファミコン」「Super Nintendo Entertainment System」「Super NES」「Nintendo」「任天堂」は任天堂の商標、「SHARP」「Brain」はシャープ株式会社の商標です。PopSNES は、任天堂、シャープなどの権利者とは関係ありません。
 
-ゲームの ROM と BIOS は同梱していません。
+ゲームの ROM は同梱していません。
 
 **使い方やビルドの説明は [CE/README.md](../CE/README.md)、ライセンスの詳しい説明は [CE/LICENSING.md](../CE/LICENSING.md) にあります。**
 

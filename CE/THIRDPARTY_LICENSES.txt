@@ -29,7 +29,7 @@ Quick summary:
     any license of this repository (section 5).
   - The Galmuri font (after section 5) is under the SIL Open Font
     License 1.1.
-  - No game ROMs or BIOS images are included.
+  - No game ROMs are included.
 
 
 1. Emulator core - snes9x2002
@@ -73,7 +73,7 @@ Implications for this Windows CE port:
   - Distribution and use must be NON-COMMERCIAL: this port must not be
     sold, bundled with anything sold, or placed behind paid access.
     This is stricter than the GPL and than most other libretro cores.
-  - No game ROMs, BIOS images or other Nintendo copyrighted material
+  - No game ROMs or other Nintendo copyrighted material
     are included or required.
 
 Copyright holders (cumulative, from the core file headers):
