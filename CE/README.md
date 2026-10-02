@@ -57,7 +57,7 @@ make clean && make && make strip
 
 - ROM ファイルは SD カード上に置いてください。アプリ内の「Open ROM…」から選べます
 - `index.din` をこの名前で置くと、そのフォルダが [追加アプリ・動画] に一覧表示されます
-- 設定ファイル `popsnes.cfg` は初回起動時に同じフォルダへ自動生成されます
+- 設定ファイル `popsnes.cfg` は、`AppMain.exe` と同じフォルダに作られます
 - `popsnes_debug.log` は Video Config で「デバッグログを有効にする」を ON にしたときのみ生成されます(既定は OFF)
 
 ### 日本語フォルダ名について
