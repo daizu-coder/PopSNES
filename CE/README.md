@@ -68,6 +68,8 @@ ROM ファイル名・ROM を置くフォルダ名とも、日本語を含んで
 
 - SHARP Brain PW-G5200
 
+PopGBA を CeOpener や CERestorer から起動すると、PW-G5300 で、終了後に画面が真っ暗になる、または操作を受け付けなくなることがありました。USB ケーブルと電池を抜いてから入れ直すと戻りました。PopSNES での動作は確かめていません。
+
 ## クレジット
 
 - **snes9x2002** SNES エミュレーションコア — Snes9x 1.39〜1.43 系をもとにした PocketSNES / OpenSNES9X 系のフォーク(`src/`, `libretro/libretro.c`)。原作者は **Gary Henderson** 氏、**Jerremy Koot** 氏ほか。CPU / SPC700 / SuperFX / DSP-1 / C4 / S-DD1 / SA-1 の各実装に **Ivar**、**zsKnight**、**_Demo_**、**pagefault**、**John Weidman**、**Brad Jorsch**、**Kris Bleakley**、**Andreas Naive**、**neviksti**、**Nach** の各氏ほか多数が関わっています(<http://www.snes9x.com>)。DSP-1 の `src/dsp1emu.c` は **ZSNES Team**(GPL バージョン2以降)、SPC700 の ARM アセンブリ `src/spc700a.S` は **notaz** 氏(bitrider 氏が改変)の作です
