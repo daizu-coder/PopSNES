@@ -4,7 +4,7 @@
 
 ## 概要
 
-- スーパーファミコンのエミュレータ [snes9x2002](https://github.com/libretro/snes9x2002) の libretro 版を、SHARP の電子辞書 **Brain PW-G5200**(Windows CE / ARM)向けに移植したものです
+- スーパーファミコンのエミュレータ [snes9x2002](https://github.com/libretro/snes9x2002) の libretro 版を、SHARP の電子辞書 **Brain PW-G5300**(Windows CE / ARM)向けに移植したものです
 - `libretro/libretro.c` をそのままコンパイルし、Win32 のフロントエンド(`CE/` 以下)を新しく書いて繋いでいます。コア側で変えたところは [`LICENSING.md`](LICENSING.md) の2節にまとめています
 - 市販・自作を問わず `.smc` / `.sfc` / `.fig` / `.swc` などの SNES ROM を実行できます。この端末の処理性能の関係で、フレームスキップを使っても実機同等の速度で快適に遊べるとは限りません(負荷の軽い ROM ほど良好です)
 - 特殊チップは、S-DD1 / SA-1 / SuperFX / DSP-1 / DSP-2 / C4 / S-RTC に対応しています。このうち実機で動作を確かめたのは、SuperFX(『スターフォックス』。非常に低速)と S-DD1(『ストリートファイター ZERO 2』。低速)です。SA-1 / DSP-1 / DSP-2 / C4 / S-RTC の動作は確かめていません。
@@ -45,7 +45,7 @@ make clean && make && make strip
 
 ## 使用方法
 
-対象は SHARP Brain(PW-G5200 系)。PC にリムーバブルディスクとして接続し、ドライブ直下に次の構成を作ります(メニュー項目名は機種により異なる場合があります):
+対象は SHARP Brain(PW-G5300)。PC にリムーバブルディスクとして接続し、ドライブ直下に次の構成を作ります(メニュー項目名は機種により異なる場合があります):
 
 ```
 <ドライブ直下>/
@@ -66,7 +66,7 @@ ROM ファイル名・ROM を置くフォルダ名とも、日本語を含んで
 
 ## 動作確認環境
 
-- SHARP Brain PW-G5200
+- SHARP Brain PW-G5300
 
 PopGBA を CeOpener や CERestorer から起動すると、PW-G5300 で、終了後に画面が真っ暗になる、または操作を受け付けなくなることがありました。USB ケーブルと電池を抜いてから入れ直すと戻りました。PopSNES での動作は確かめていません。
 

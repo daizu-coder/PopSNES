@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 daizu-coder
 #
-# Windows CE (SHARP Brain PW-G5200, ARM, no HW integer divide) port of
+# Windows CE (SHARP Brain PW-G5300, ARM, no HW integer divide) port of
 # snes9x2002 via its libretro core. Built with the cegcc cross toolchain.
 #
 # Run from inside this directory:

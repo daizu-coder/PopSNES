@@ -1,4 +1,4 @@
-PopSNES (SHARP Brain PW-G5200 Windows CE port) - Third-party licenses
+PopSNES (SHARP Brain PW-G5300 Windows CE port) - Third-party licenses
 =====================================================================
 
 This port bundles third-party code and data: the snes9x2002 emulation

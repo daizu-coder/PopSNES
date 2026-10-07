@@ -15,9 +15,9 @@
 </p>
 <p align="center"><sub>画面は lunoka 氏の <a href="https://lunoka.itch.io/mai-nurse">「Mai Nurse」</a> を PopSNES の x1(等倍)表示で動かしたものです(作者の許可を得て掲載。下の「クレジット」を参照)。</sub></p>
 
-**非公式・非商用の改変版です。** PopSNES は、スーパーファミコンのエミュレータ [snes9x2002](https://github.com/libretro/snes9x2002)(Snes9x をもとにした PocketSNES / OpenSNES9X 系の libretro 版。Gary Henderson 氏、Jerremy Koot 氏ほか)を、SHARP の電子辞書 Brain PW-G5200(Windows CE)向けに移植した**非公式**の改変版です。Snes9x や snes9x2002 の公式版ではありません。Snes9x や snes9x2002 の作者やメンテナーはこの移植に関わっておらず、サポートもしていません。不具合の報告は、上流ではなくこちらにお願いします。Snes9x のライセンスにより、販売すること、商用の製品や活動に使うこと、お金を払った人だけに配ることはできません。
+**非公式・非商用の改変版です。** PopSNES は、スーパーファミコンのエミュレータ [snes9x2002](https://github.com/libretro/snes9x2002)(Snes9x をもとにした PocketSNES / OpenSNES9X 系の libretro 版。Gary Henderson 氏、Jerremy Koot 氏ほか)を、SHARP の電子辞書 Brain PW-G5300(Windows CE)向けに移植した**非公式**の改変版です。Snes9x や snes9x2002 の公式版ではありません。Snes9x や snes9x2002 の作者やメンテナーはこの移植に関わっておらず、サポートもしていません。不具合の報告は、上流ではなくこちらにお願いします。Snes9x のライセンスにより、販売すること、商用の製品や活動に使うこと、お金を払った人だけに配ることはできません。
 
-**Unofficial, non-commercial port.** PopSNES is an unofficial port of the libretro edition of snes9x2002 (a PocketSNES / OpenSNES9X fork of Snes9x, by Gary Henderson, Jerremy Koot and contributors) to the SHARP Brain PW-G5200 (Windows CE). It is not an official Snes9x or snes9x2002 release, and the Snes9x and snes9x2002 authors and maintainers are not involved in it and do not support it. Please report PopSNES issues here, not upstream. Under the Snes9x license, PopSNES may not be sold or used in a commercial product or activity.
+**Unofficial, non-commercial port.** PopSNES is an unofficial port of the libretro edition of snes9x2002 (a PocketSNES / OpenSNES9X fork of Snes9x, by Gary Henderson, Jerremy Koot and contributors) to the SHARP Brain PW-G5300 (Windows CE). It is not an official Snes9x or snes9x2002 release, and the Snes9x and snes9x2002 authors and maintainers are not involved in it and do not support it. Please report PopSNES issues here, not upstream. Under the Snes9x license, PopSNES may not be sold or used in a commercial product or activity.
 
 ## ダウンロード
 最新版は Releases のページからダウンロードできます。

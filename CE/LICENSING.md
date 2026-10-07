@@ -1,6 +1,6 @@
 # PopSNES のライセンス
 
-PopSNES は、スーパーファミコンのエミュレータ [snes9x2002](https://github.com/libretro/snes9x2002)(Snes9x 1.39〜1.43 系をもとにした PocketSNES / OpenSNES9X 系の libretro 版)を、SHARP Brain PW-G5200(Windows CE)向けに移植した、**非公式・非商用**の改変版です。Snes9x や snes9x2002 の作者やメンテナーはこの移植に関わっていません。
+PopSNES は、スーパーファミコンのエミュレータ [snes9x2002](https://github.com/libretro/snes9x2002)(Snes9x 1.39〜1.43 系をもとにした PocketSNES / OpenSNES9X 系の libretro 版)を、SHARP Brain PW-G5300(Windows CE)向けに移植した、**非公式・非商用**の改変版です。Snes9x や snes9x2002 の作者やメンテナーはこの移植に関わっていません。
 
 ライセンスは2段になっています。
 

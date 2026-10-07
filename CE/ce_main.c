@@ -2,7 +2,7 @@
 /* Copyright (c) 2026 daizu-coder */
 
 /*
- * Windows CE frontend for snes9x2002 (SHARP Brain PW-G5200, ARM).
+ * Windows CE frontend for snes9x2002 (SHARP Brain PW-G5300, ARM).
  *
  * This is a *libretro frontend*, not a port that reaches into the S9x
  * core directly: ../libretro/libretro.c already implements every port
@@ -1552,7 +1552,7 @@ static void CeShutdown(int exitCode)
 }
 
 /* "HHTaskBar" is the standard window class of the Windows CE Explorer
- * taskbar (the desktop-style one visible in the PW-G5200's own shell,
+ * taskbar (the desktop-style one visible in the PW-G5300's own shell,
  * as opposed to a Pocket PC command bar) - FindWindow+ShowWindow(HIDE)
  * on it is the documented fallback for CE builds where SHFullScreen
  * doesn't apply. This device's shell is the fuller desktop-like CE
