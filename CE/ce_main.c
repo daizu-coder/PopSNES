@@ -277,6 +277,60 @@ static int PickAndLoadRom(HWND owner, wchar_t *outPath, size_t outPathCount)
 /* Battery-backed cartridge save (SRAM)                                */
 /* ------------------------------------------------------------------ */
 
+/* The core's whole SRAM buffer: MemoryInit() (src/memmap.c) mallocs
+ * 0x20000 bytes once, and nothing in the core clears it again - not
+ * LoadROM(), not S9xReset(), not retro_unload_game() (which is empty).
+ * The enhancement chips reach past the game's own save size inside it
+ * (SA-1 BW-RAM bitmap view, SuperFX RAM banks, the 0x1ffff-masked
+ * Memory.Map entries), so CeLoadSram() clears all of it, not just
+ * retro_get_memory_size(RETRO_MEMORY_SAVE_RAM). */
+#define CE_SRAM_BUFFER_SIZE 0x20000
+
+/* What the .srm file holds (last full load or save), so the 30-second
+ * autosave and the exit save (CeSaveSramIfChanged) can skip the write
+ * when the game hasn't changed its save RAM since - same as the sister
+ * PopSG port's v1.0.6. On a real PW-G5300 a .srm write's fclose() alone
+ * took 144-1925ms on the main thread (PopGBA, 2026-10-07), long enough to
+ * drain the audio ring. The size depends on the game (the cartridge
+ * header's SRAM size, 0x20000 for SuperFX), so the copy is allocated per
+ * game; CeSramForget() frees it when the game is switched or the app
+ * exits. s_srmShadowValid is 0 when the file's content isn't known (a
+ * short read, a failed write, no memory for the copy). */
+static unsigned char *s_srmShadow = NULL;
+static size_t s_srmShadowSize = 0;
+static int s_srmShadowValid = 0;
+
+/* 1 when this game's .srm file exists (CeLoadSram opened it, or
+ * CeSaveSram wrote it). While it doesn't, s_srmShadow holds the save
+ * RAM as it was right after loading, and every checkpoint (pause, ROM
+ * switch, autosave, exit) writes only once the game has changed it, so
+ * a game the player never saved in doesn't get a .srm. Once the file
+ * exists, the pause and ROM-switch checkpoints write every time
+ * (CeSaveSramCheckpoint). */
+static int s_srmFileExists = 0;
+
+static void CeSramForget(void)
+{
+    free(s_srmShadow);
+    s_srmShadow = NULL;
+    s_srmShadowSize = 0;
+    s_srmShadowValid = 0;
+}
+
+static void CeSramRemember(const void *sram, size_t size)
+{
+    if (s_srmShadowSize != size)
+    {
+        CeSramForget();
+        s_srmShadow = (unsigned char *)malloc(size);
+        if (!s_srmShadow)
+            return; /* stays invalid - every save then writes, as before */
+        s_srmShadowSize = size;
+    }
+    memcpy(s_srmShadow, sram, size);
+    s_srmShadowValid = 1;
+}
+
 /* Loads "<romPath>.srm" into the core's SRAM, if this game has any
  * (RETRO_MEMORY_SAVE_RAM) and a save file already exists. This is what
  * makes a game's own in-cartridge save feature (its own menu's "Save" -
@@ -287,7 +341,9 @@ static int PickAndLoadRom(HWND owner, wchar_t *outPath, size_t outPathCount)
  * through the same SRAM the core exposes here, the core has no separate
  * concept of "temporary" vs. "permanent" SRAM). No .srm file yet is the
  * normal case for a new game (or one with no SRAM at all) and isn't
- * logged as an error. */
+ * logged as an error; the SRAM is then cleared to zero first, so the
+ * previous game's save (see CE_SRAM_BUFFER_SIZE) can't end up in this
+ * game's .srm. */
 static void CeLoadSram(void)
 {
     void *sram = retro_get_memory_data(RETRO_MEMORY_SAVE_RAM);
@@ -296,6 +352,8 @@ static void CeLoadSram(void)
     FILE *f;
     size_t got;
 
+    CeSramForget();
+    s_srmFileExists = 0;
     if (!sram || size == 0)
         return; /* this game has no battery-backed SRAM */
 
@@ -304,29 +362,37 @@ static void CeLoadSram(void)
     if (!f)
     {
         CeLog("CeLoadSram: no .srm file yet (new game, or none saved)");
+        memset(sram, 0, CE_SRAM_BUFFER_SIZE);
+        CeSramRemember(sram, size); /* no checkpoint writes until the game changes it (s_srmFileExists) */
         return;
     }
+    s_srmFileExists = 1;
 
     /* Read at most `size` bytes - a mismatched-size .srm (shouldn't
      * happen for a given ROM, but don't overrun the core's buffer if it
      * somehow does) is truncated, not rejected outright. */
     got = fread(sram, 1, size, f);
     fclose(f);
+    if (got == size)
+        CeSramRemember(sram, size);
     CeLog("CeLoadSram: loaded %lu of %lu bytes", (unsigned long)got, (unsigned long)size);
 }
 
 /* Writes the core's current SRAM out to "<romPath>.srm" - the other half
  * of CeLoadSram(). Called whenever a loaded game's SRAM is about to stop
  * being the live one (File>Open loading a different ROM, or app exit),
- * so an in-game save made this session isn't lost. No periodic/crash-
- * safe autosave beyond these two points - not asked for, and this
- * device's actual power-loss risk profile is unknown. */
+ * plus a pause-time checkpoint (ShowMainMenuDialog) and a periodic
+ * autosave (WinMain's loop), so an in-game save made this session isn't
+ * lost. The autosave and app exit go through CeSaveSramIfChanged(), the
+ * pause and ROM switch through CeSaveSramCheckpoint(), both below. */
 static void CeSaveSram(void)
 {
     void *sram = retro_get_memory_data(RETRO_MEMORY_SAVE_RAM);
     size_t size = retro_get_memory_size(RETRO_MEMORY_SAVE_RAM);
     wchar_t sramPath[MAX_PATH + 8];
     FILE *f;
+    size_t wrote;
+    int closeErr;
 
     if (!sram || size == 0)
         return; /* this game has no battery-backed SRAM - nothing to save */
@@ -335,13 +401,49 @@ static void CeSaveSram(void)
     f = _wfopen(sramPath, L"wb");
     if (!f)
     {
+        s_srmShadowValid = 0;
         CeLog("CeSaveSram: failed to open .srm file for write");
         return;
     }
 
-    fwrite(sram, 1, size, f);
-    fclose(f);
+    wrote = fwrite(sram, 1, size, f);
+    closeErr = fclose(f);
+    s_srmFileExists = 1; /* "wb" created or truncated it, even if the write then failed */
+    if (wrote == size && closeErr == 0)
+        CeSramRemember(sram, size);
+    else
+        s_srmShadowValid = 0;
     CeLog("CeSaveSram: saved %lu bytes", (unsigned long)size);
+}
+
+/* WinMain's 30-second autosave and CeShutdown()'s exit save: same as
+ * CeSaveSram(), but skips the write when the save RAM still matches what
+ * the .srm file holds (see s_srmShadow) - or, while there is no .srm
+ * yet, what the save RAM held right after loading. Exiting from the main
+ * menu always comes right after the menu's own pause-time save, so the
+ * exit write was a second copy of the same bytes. The pause and
+ * ROM-switch checkpoints go through CeSaveSramCheckpoint() below. */
+static void CeSaveSramIfChanged(void)
+{
+    void *sram = retro_get_memory_data(RETRO_MEMORY_SAVE_RAM);
+    size_t size = retro_get_memory_size(RETRO_MEMORY_SAVE_RAM);
+
+    if (sram && s_srmShadowValid && size == s_srmShadowSize &&
+        memcmp(s_srmShadow, sram, size) == 0)
+        return;
+    CeSaveSram();
+}
+
+/* The pause-time save (ShowMainMenuDialog) and the ROM-switch save
+ * (LoadRomFlow): always write while the game's .srm exists, as before;
+ * while it doesn't, write only if the save RAM changed since loading
+ * (see s_srmFileExists). */
+static void CeSaveSramCheckpoint(void)
+{
+    if (s_srmFileExists)
+        CeSaveSram();
+    else
+        CeSaveSramIfChanged();
 }
 
 /* Picks + reads a ROM (via PickAndLoadRom) and hands it to the core.
@@ -363,8 +465,9 @@ static int LoadRomFlow(HWND hwnd)
 
     if (g_romLoaded)
     {
-        CeSaveSram(); /* g_romPath/the core's SRAM still refer to the *previous* game here - new one isn't loaded yet */
+        CeSaveSramCheckpoint(); /* g_romPath/the core's SRAM/s_srmFileExists still refer to the *previous* game here - new one isn't loaded yet */
         retro_unload_game();
+        CeSramForget();
     }
 
     /* game.path is never dereferenced by this core - retro_load_game()
@@ -1395,8 +1498,10 @@ static void ShowMainMenuDialog(HWND hwnd)
          * wasn't on disk after the device was actually powered off, not
          * just app-restarted), so relying only on those two checkpoints
          * misses that case entirely. Opening the touch-to-reveal menu is
-         * a frequent, cheap, natural checkpoint to also save at. */
-        CeSaveSram();
+         * a frequent, cheap, natural checkpoint to also save at. Writes
+         * every time while the game's .srm exists, and otherwise only if
+         * the game changed its save RAM (CeSaveSramCheckpoint). */
+        CeSaveSramCheckpoint();
     }
 
     InvalidateRect(hwnd, NULL, TRUE);
@@ -1532,7 +1637,8 @@ static void CeShutdown(int exitCode)
      * ExitProcess() isn't tearing down a thread still mid-waveOutWrite. */
     CeAudioStop();
     if (g_romLoaded)
-        CeSaveSram();
+        CeSaveSramIfChanged();
+    CeSramForget();
     retro_unload_game();
     retro_deinit();
 
@@ -1875,10 +1981,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLin
          * opened before the device is powered off; this covers a
          * straight-through play session that never touches the menu at
          * all. ~30s is arbitrary (no data on this device's real
-         * power-loss frequency, same caveat as the lack of a crash-safe
-         * autosave noted below) - frequent enough to bound how much an
-         * in-game save could be lost, infrequent enough that a `.srm`
-         * write (typically a few KB) is not worth timing/skipping for. */
+         * power-loss frequency) - frequent enough to bound how much an
+         * in-game save could be lost. CeSaveSramIfChanged() only writes
+         * when the save RAM has changed: the write stalls this loop long
+         * enough to cut the sound out (see s_srmShadow). */
         {
             static DWORD s_lastSramSaveTick = 0;
             DWORD now = GetTickCount();
@@ -1886,7 +1992,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLin
                 s_lastSramSaveTick = now; /* first frame of gameplay - start the 30s window now, not at an immediate save */
             else if (now - s_lastSramSaveTick >= 30000)
             {
-                CeSaveSram();
+                CeSaveSramIfChanged();
                 s_lastSramSaveTick = now;
             }
         }
