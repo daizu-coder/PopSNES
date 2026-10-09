@@ -31,17 +31,20 @@
 
 ## ビルド方法
 
-- SDK / ツールチェーン
-  * WSL(Windows 上の Linux)に入れた cegcc(`arm-mingw32ce-*` クロスコンパイラ)
-- ビルド手順
+- ツール
+  * cegcc(`arm-mingw32ce-*`、`/opt/cegcc`)— Windows CE / ARM 向けのクロスコンパイラ。製作者は WSL(Windows 上の Linux)でビルドしています
+- サブモジュールは使っていません
+- 手順
+  * `CE/` で `make && make strip` を実行します
+  * `CE/AppMain.exe` ができます(依存する DLL は `COREDLL.dll` だけ)
+  * 既定のフォントは Galmuri14 です。`make CE_FONT=shinonome` で東雲 16 ドット版(`AppMain_shinonome.exe`)、`make CE_FONT=galmuri11` で GalmuriMono11 版(`AppMain_galmuri11.exe`)も作れます。フォントは AppMain.exe に入っているので、フォントのファイルは要りません
 
 ```sh
-cd CE
-make clean && make && make strip
+git clone https://github.com/daizu-coder/PopSNES.git
+cd PopSNES/CE
+make
+make strip
 ```
-
-- 生成物は `CE/AppMain.exe`。UI が使うビットマップフォントはバイナリに埋め込み済み(`CE/ce_galmuri14.h`、`CE/ce_shinonome16.h`)なので、外部のフォントファイルは不要です
-- `make CE_FONT=shinonome` で東雲 16 ドット、`make CE_FONT=galmuri11` で GalmuriMono11 のメニュー文字の版(`AppMain_shinonome.exe` / `AppMain_galmuri11.exe`)も作れます
 
 ## 使用方法
 
