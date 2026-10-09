@@ -36,14 +36,11 @@ Brainへのインストールは[アプリの起動方法](https://brain.fandom.
 ## ライセンスと商標
 PopSNES 全体は、上流と同じ条件(Snes9x の非商用ライセンス)で配布します。PopSNES の自作部分は MIT ライセンス、マスコットの絵とアイコンは CC0 1.0 です。上流には、ZSNES Team の GPL のファイルや、表記のないファイルがあります。
 
-「スーパーファミコン」「Super Nintendo Entertainment System」「Super NES」「Nintendo」「任天堂」は任天堂の商標、「SHARP」「Brain」はシャープ株式会社の商標です。PopSNES は、任天堂、シャープなどの権利者とは関係ありません。
-
-ライセンスの詳しい説明は [CE/LICENSING.md](../CE/LICENSING.md) にあります。
+「スーパーファミコン」「Super Nintendo Entertainment System」「Super NES」「Nintendo」「任天堂」は任天堂の商標、「SHARP」「Brain」はシャープ株式会社の商標です。PopSNES は、任天堂、シャープなどの権利者とは関係ありません。ライセンスの詳しい説明は [CE/LICENSING.md](../CE/LICENSING.md) にあります。
 
 ゲームの ROM は同梱していません。
 
-## ビルド方法、使用方法
-ビルド方法と使用方法は [CE/README.md](../CE/README.md) をご覧ください。
+## ビルド方法、使用方法 → [CE/README.md](../CE/README.md)
 
 ## クレジット
 
