@@ -40,7 +40,8 @@ PopSNES 全体は、上流と同じ条件(Snes9x の非商用ライセンス)で
 
 ゲームの ROM は同梱していません。
 
-## ビルド方法、使用方法 → [CE/README.md](../CE/README.md)
+## ビルド方法、使用方法
+(→ [CE/README.md](../CE/README.md) にあります)
 
 ## クレジット
 
