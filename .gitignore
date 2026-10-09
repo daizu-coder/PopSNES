@@ -17,6 +17,7 @@ CE/AppMain.exe
 *.md
 !README.md
 !/CE/LICENSING.md
+!/CE/NOTES.md
 
 # ROMs (never distributed)
 *.sfc
