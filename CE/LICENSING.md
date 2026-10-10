@@ -37,7 +37,7 @@ libretro 版では、Daniel De Matteis 氏の「UNDER NO CIRCUMSTANCE WILL COMME
 
 PopSNES が変えた上流のファイルは次のものだけです。どれも Windows CE 用のツール(cegcc)とこの端末に合わせるため、またはコアの不具合を直すためのもので、ライセンスは変わりません。
 
-- `libretro/libretro.c`: `Settings.SDD1Pack = TRUE` を設定した(S-DD1 の DMA が、中身が空のままの `S9xLoadSDD1Data()` に頼る経路を通り、圧縮されたままのデータを VRAM に送っていたため。『ストリートファイター ZERO 2』のロゴなど)
+- `libretro/libretro.c`: `Settings.SDD1Pack = TRUE` を設定した(S-DD1 の DMA が、中身が空のままの `S9xLoadSDD1Data()` に頼る経路を通り、圧縮されたままのデータを VRAM に送っていたため。起動したときのロゴなど)
 - `src/os9x_65c816*.S`: `.include` のファイル名の大文字・小文字を実際のファイル名(`.S`)に合わせた(大文字と小文字を区別するファイルシステムでアセンブルできなかったため)
 - `src/spc700a.S`: TCALL / BRK のベクタを、2バイトの読み込みではなく1バイトずつ読むようにした(そろっていない場所にあるため、この端末で止まっていた)
 - `src/soundux.c`、`src/soundux.h`、`src/apu.c`: 音の処理を実機の DSP に合わせた(ノイズの作り方、ループ時の SRCN の読み直し、BRR の展開の計算)

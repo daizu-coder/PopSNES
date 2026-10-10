@@ -26,7 +26,7 @@ https://github.com/daizu-coder/PopSNES/releases/latest
 ## アプリのインストール
 Brainへのインストールは[アプリの起動方法](https://brain.fandom.com/ja/wiki/アプリの起動方法)を参照してください。
 
-スーパーファミコンのゲーム(`.smc`、`.sfc` など)を開けます。特殊チップは、S-DD1 / SA-1 / SuperFX / DSP-1 / DSP-2 / C4 / S-RTC に対応しています。このうち実機で動作を確かめたのは、SuperFX(『スターフォックス』。非常に低速)と S-DD1(『ストリートファイター ZERO 2』。低速)です。SA-1 / DSP-1 / DSP-2 / C4 / S-RTC の動作は確かめていません。
+スーパーファミコンのゲーム(`.smc`、`.sfc` など)を開けます。特殊チップは、S-DD1 / SA-1 / SuperFX / DSP-1 / DSP-2 / C4 / S-RTC に対応しています。このうち実機で動作を確かめたのは、SuperFX(非常に低速)と S-DD1(低速)です。SA-1 / DSP-1 / DSP-2 / C4 / S-RTC の動作は確かめていません。
 
 次の特殊チップや周辺機器を使うゲームには対応していません：SPC7110(『天外魔境ZERO』など)、OBC1、DSP-3、DSP-4、Seta の ST010・ST011・ST018、BS-X(サテラビュー)、スーパーゲームボーイ、スーファミターボ。
 
