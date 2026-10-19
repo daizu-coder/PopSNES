@@ -85,6 +85,7 @@ static void CeShutdown(int exitCode); /* used by MainMenuDlgProc, below */
 static void CeShowShellChrome(HWND hwnd); /* used by CeShutdown, defined further below */
 static void CeHideShellChrome(HWND hwnd); /* used by ShowMainMenuDialog and WinMain, defined further below */
 static void CeShowMsgBox(HWND owner, const wchar_t *text); /* used by CeSaveState/CeLoadState, defined further below */
+static int CeConfirmSramRollback(HWND owner, const void *oldSram, size_t size); /* used by CeLoadState, defined further below */
 
 /* ------------------------------------------------------------------ */
 /* libretro callbacks                                                  */
@@ -416,6 +417,67 @@ static void CeSaveSram(void)
     CeLog("CeSaveSram: saved %lu bytes", (unsigned long)size);
 }
 
+/* Keeps the save RAM as it was before a Save State load that changed it
+ * (CeLoadState, after the player chose Load) as
+ * "<romPath>.backup1.srm", shifting the older ones to backup2/backup3 so
+ * the last three are kept. The new copy goes to a .tmp file first and
+ * only replaces backup1 once it is fully written, so a power-off
+ * mid-write can't cost the previous backups. Written while the menu is
+ * up (the game and the sound are paused), so the SD card's slow
+ * fclose() (see s_srmShadow) only delays closing the menu. The times go
+ * to the log in one line after everything is done - CeLog() itself
+ * opens and closes the log file on the same card. Returns 1 on success. */
+static int CeBackupSram(const void *data, size_t size)
+{
+    wchar_t tmpPath[MAX_PATH + 24];
+    wchar_t b1[MAX_PATH + 24], b2[MAX_PATH + 24], b3[MAX_PATH + 24];
+    DWORD t0, tClosed, tEnd;
+    FILE *f;
+    size_t wrote;
+    int closeErr;
+
+    _snwprintf(tmpPath, MAX_PATH + 24, L"%s.backup.tmp", g_romPath);
+    _snwprintf(b1, MAX_PATH + 24, L"%s.backup1.srm", g_romPath);
+    _snwprintf(b2, MAX_PATH + 24, L"%s.backup2.srm", g_romPath);
+    _snwprintf(b3, MAX_PATH + 24, L"%s.backup3.srm", g_romPath);
+    tmpPath[MAX_PATH + 23] = b1[MAX_PATH + 23] = b2[MAX_PATH + 23] = b3[MAX_PATH + 23] = L'\0';
+
+    t0 = GetTickCount();
+    f = _wfopen(tmpPath, L"wb");
+    if (!f)
+    {
+        CeLog("CeBackupSram: failed to open the .tmp file for write");
+        return 0;
+    }
+    wrote = fwrite(data, 1, size, f);
+    closeErr = fclose(f);
+    tClosed = GetTickCount();
+    if (wrote != size || closeErr != 0)
+    {
+        DeleteFileW(tmpPath);
+        CeLog("CeBackupSram: write failed (%lu of %lu bytes, fclose %d)",
+              (unsigned long)wrote, (unsigned long)size, closeErr);
+        return 0;
+    }
+
+    /* A missing backup2/backup3 (the first few backups) is normal. */
+    DeleteFileW(b3);
+    MoveFileW(b2, b3);
+    MoveFileW(b1, b2);
+    if (!MoveFileW(tmpPath, b1))
+    {
+        CeLog("CeBackupSram: can't rename the .tmp file to backup1 (error %lu)",
+              (unsigned long)GetLastError());
+        return 0;
+    }
+    tEnd = GetTickCount();
+
+    CeLog("CeBackupSram: saved %lu bytes - write+fclose %lums, rotate %lums, total %lums",
+          (unsigned long)size, (unsigned long)(tClosed - t0),
+          (unsigned long)(tEnd - tClosed), (unsigned long)(tEnd - t0));
+    return 1;
+}
+
 /* WinMain's 30-second autosave and CeShutdown()'s exit save: same as
  * CeSaveSram(), but skips the write when the save RAM still matches what
  * the .srm file holds (see s_srmShadow) - or, while there is no .srm
@@ -577,6 +639,10 @@ static int CeLoadState(HWND owner)
     FILE *f;
     long size;
     void *buffer;
+    size_t snapSize, sramSize;
+    void *snap;
+    void *sram;
+    unsigned char *oldSram = NULL;
 
     _snwprintf(statePath, MAX_PATH + 8, L"%s.state", g_romPath);
     f = _wfopen(statePath, L"rb");
@@ -622,9 +688,50 @@ static int CeLoadState(HWND owner)
     }
     fclose(f);
 
+    /* Keep the game as it is now, so a failed load (the core resets
+     * first and restores block by block, so a failure leaves it half
+     * loaded) or a Cancel in the in-game-save warning below can put it
+     * back. Also keep the save RAM on its own to compare against - the
+     * state carries the core's whole SRAM buffer, so loading it also
+     * takes the game's own in-cartridge save back to when the state was
+     * made. No memory for either copy: don't load at all. */
+    snapSize = retro_serialize_size();
+    snap = snapSize ? malloc(snapSize) : NULL;
+    if (!snap || !retro_serialize(snap, snapSize))
+    {
+        free(snap);
+        free(buffer);
+        CeLog("CeLoadState: can't keep the current state (%lu bytes) - not loading", (unsigned long)snapSize);
+        CeShowMsgBox(owner, CeLangIsJapanese() ? L"\x30ed\x30fc\x30c9\x306b\x5931\x6557\x3057\x307e\x3057\x305f\x3002" /* ロードに失敗しました。 */
+                                                : L"Load failed.");
+        return 0;
+    }
+    sram = retro_get_memory_data(RETRO_MEMORY_SAVE_RAM);
+    sramSize = retro_get_memory_size(RETRO_MEMORY_SAVE_RAM);
+    if (!sram)
+        sramSize = 0;
+    if (sramSize)
+    {
+        oldSram = (unsigned char *)malloc(sramSize);
+        if (!oldSram)
+        {
+            free(snap);
+            free(buffer);
+            CeLog("CeLoadState: can't keep the save RAM (%lu bytes) - not loading", (unsigned long)sramSize);
+            CeShowMsgBox(owner, CeLangIsJapanese() ? L"\x30ed\x30fc\x30c9\x306b\x5931\x6557\x3057\x307e\x3057\x305f\x3002" /* ロードに失敗しました。 */
+                                                    : L"Load failed.");
+            return 0;
+        }
+        memcpy(oldSram, sram, sramSize);
+    }
+
     if (!retro_unserialize(buffer, (size_t)size))
     {
         free(buffer);
+        if (!retro_unserialize(snap, snapSize))
+            CeLog("CeLoadState: putting the kept state back failed too");
+        free(snap);
+        free(oldSram);
         CeLog("CeLoadState: retro_unserialize failed");
         CeShowMsgBox(owner, CeLangIsJapanese() ? L"\x30ed\x30fc\x30c9\x306b\x5931\x6557\x3057\x307e\x3057\x305f(\x30bb\x30fc\x30d6\x30c7\x30fc\x30bf\x306e\x5f62\x5f0f\x304c\x7570\x306a\x308b\x53ef\x80fd\x6027\x304c\x3042\x308a\x307e\x3059)\x3002" /* ロードに失敗しました(セーブデータの形式が異なる可能性があります)。 */
                                                 : L"Load failed (incompatible save?).");
@@ -632,6 +739,29 @@ static int CeLoadState(HWND owner)
     }
 
     free(buffer);
+
+    /* Only when the load changed the save RAM: warn first, and on Load
+     * keep the old save RAM as a backup file (not while the game has no
+     * .srm yet - there is no save to protect); if that fails, warn again.
+     * On Cancel, put the game back as it was; the menu stays open, as
+     * after a failure. */
+    if (oldSram && memcmp(oldSram, sram, sramSize) != 0)
+    {
+        if (!s_srmFileExists)
+            CeLog("CeLoadState: no .srm yet - no backup will be written");
+        if (!CeConfirmSramRollback(owner, s_srmFileExists ? oldSram : NULL, sramSize))
+        {
+            if (!retro_unserialize(snap, snapSize))
+                CeLog("CeLoadState: putting the kept state back failed");
+            free(snap);
+            free(oldSram);
+            CeLog("CeLoadState: in-game save would change - player chose Cancel, kept state put back");
+            return 0;
+        }
+    }
+
+    free(snap);
+    free(oldSram);
     CeLog("CeLoadState: loaded %ld bytes", size);
     return 1;
 }
@@ -673,8 +803,9 @@ static wchar_t s_msgBoxText[CE_MSGBOX_MAX_TEXT];
  * line takes as many characters as fit, breaking at the last ASCII space
  * on the line when there is one (so English breaks between words;
  * Japanese has no spaces and just hard-breaks). At least one character
- * always goes on a line even if it alone overflows. Any remainder past
- * the final line is dropped. Returns the number of lines used (>=1).
+ * always goes on a line even if it alone overflows. A '\n' in the text
+ * always starts a new line. Any remainder past the final line is
+ * dropped. Returns the number of lines used (>=1).
  * Ported from the sister PopSG/PicoDrive CE port (replaced this port's
  * earlier 2-line-only WrapMsgBoxText - the non-ASCII path message's
  * English text needs more than two lines). */
@@ -689,7 +820,7 @@ static int WrapMsgBoxLines(const wchar_t *text, int maxWidth,
         int fit = 0, lastSpace = -1, i;
         wchar_t probe[CE_MSGBOX_MAX_LINE];
 
-        for (i = 0; p[i] && i < CE_MSGBOX_MAX_LINE - 1; i++)
+        for (i = 0; p[i] && p[i] != L'\n' && i < CE_MSGBOX_MAX_LINE - 1; i++)
         {
             probe[i] = p[i];
             probe[i + 1] = L'\0';
@@ -700,7 +831,7 @@ static int WrapMsgBoxLines(const wchar_t *text, int maxWidth,
                 lastSpace = i + 1;
         }
 
-        if (p[fit] == L'\0')            /* rest fits on this line */
+        if (p[fit] == L'\0' || p[fit] == L'\n') /* rest (of this line) fits */
             ;
         else if (lastSpace > 0)         /* break after the last space */
             fit = lastSpace;
@@ -712,8 +843,11 @@ static int WrapMsgBoxLines(const wchar_t *text, int maxWidth,
         count++;
 
         p += fit;
-        while (*p == L' ')              /* swallow the wrapped space */
+        if (*p == L'\n')                /* a line break in the text */
             p++;
+        else
+            while (*p == L' ')          /* swallow the wrapped space */
+                p++;
     }
 
     if (count == 0)
@@ -982,6 +1116,110 @@ static void CeConfirmAndSaveState(HWND owner)
     s_msgBoxText[CE_MSGBOX_MAX_TEXT - 1] = L'\0';
 
     DialogBoxW(g_hInstance, MAKEINTRESOURCEW(IDD_CONFIRM), owner, SaveStateDlgProc);
+}
+
+/* Load State's warning when the load would change the game's own
+ * in-cartridge save (CeLoadState). IDD_CONFIRM_LONG: IDD_CONFIRM's text
+ * didn't fit, and Save State's own question stays on IDD_CONFIRM. Same
+ * keys (ConfirmBtnCtrlProc), but the buttons say Load/Cancel (IDC_CF_YES/
+ * IDC_CF_NO); Cancel has the focus first, and the Back key also cancels.
+ * On Load it writes the backup (CeBackupSram) while still on screen; if
+ * that fails it says so in place and waits for Load/Cancel again, the
+ * same way SaveStateDlgProc shows its result - never closing and
+ * opening a second dialog over the main menu. */
+static const void *s_rbOldSram = NULL; /* NULL = no backup to write (no .srm yet) */
+static size_t      s_rbOldSramSize = 0;
+static int         s_rbAskedAgain = 0; /* 1 = the backup failed, now showing that */
+
+static INT_PTR CALLBACK SramRollbackDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+    case WM_INITDIALOG:
+        s_ssPhase = 0; /* ConfirmBtnCtrlProc's arrow keys move between the two buttons */
+        s_rbAskedAgain = 0;
+        ShowWindow(GetDlgItem(hDlg, IDC_CF_TEXT), SW_HIDE);
+        SetDlgItemTextW(hDlg, IDC_CF_YES, CeLangIsJapanese() ? L"\x30ed\x30fc\x30c9" /* ロード */ : L"Load");
+        SetDlgItemTextW(hDlg, IDC_CF_NO,  CeLangIsJapanese() ? L"\x3084\x3081\x308b" /* やめる */ : L"Cancel");
+        s_pConfirmBtnOrigProc = (WNDPROC)GetWindowLongPtrW(GetDlgItem(hDlg, IDC_CF_YES), GWLP_WNDPROC);
+        SetWindowLongPtrW(GetDlgItem(hDlg, IDC_CF_YES), GWLP_WNDPROC, (LONG_PTR)ConfirmBtnCtrlProc);
+        SetWindowLongPtrW(GetDlgItem(hDlg, IDC_CF_NO),  GWLP_WNDPROC, (LONG_PTR)ConfirmBtnCtrlProc);
+        SetActiveWindow(hDlg);
+        SetFocus(GetDlgItem(hDlg, IDC_CF_NO));
+        return FALSE;
+
+    case WM_DRAWITEM:
+        CeBmpFontDrawOwnerButton((const DRAWITEMSTRUCT *)lParam);
+        return TRUE;
+
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hdc;
+        RECT rc;
+        wchar_t lines[CE_MSGBOX_MAX_LINES][CE_MSGBOX_MAX_LINE];
+        int count;
+
+        hdc = BeginPaint(hDlg, &ps);
+        GetWindowRect(GetDlgItem(hDlg, IDC_CF_TEXT), &rc);
+        MapWindowPoints(NULL, hDlg, (POINT *)&rc, 2);
+
+        count = WrapMsgBoxLines(s_msgBoxText, rc.right - rc.left, lines, CE_MSGBOX_MAX_LINES);
+        PaintMsgBoxLines(hdc, &rc, lines, count);
+
+        EndPaint(hDlg, &ps);
+        return TRUE;
+    }
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDC_CF_YES:
+            if (!s_rbAskedAgain && s_rbOldSram &&
+                !CeBackupSram(s_rbOldSram, s_rbOldSramSize))
+            {
+                wcsncpy(s_msgBoxText, CeLangIsJapanese()
+                        ? L"\x30d0\x30c3\x30af\x30a2\x30c3\x30d7\x3092\x4f5c\x308c\x307e\x305b\x3093\x3067\x3057\x305f\x3002" /* バックアップを作れませんでした。 */
+                        : L"Could not make a backup of your in-game save.",
+                        CE_MSGBOX_MAX_TEXT - 1);
+                s_msgBoxText[CE_MSGBOX_MAX_TEXT - 1] = L'\0';
+                s_rbAskedAgain = 1;
+                InvalidateRect(hDlg, NULL, TRUE);
+                SetFocus(GetDlgItem(hDlg, IDC_CF_NO));
+                return TRUE;
+            }
+            EndDialog(hDlg, 1);
+            return TRUE;
+        case IDC_CF_NO:
+        case IDCANCEL:
+            EndDialog(hDlg, 0);
+            return TRUE;
+        }
+        return FALSE;
+
+    default:
+        return FALSE;
+    }
+}
+
+/* Returns 1 for Load, 0 for Cancel. oldSram is the save RAM from before
+ * the load, to back up on Load - NULL when the game has no .srm yet (no
+ * backup). */
+static int CeConfirmSramRollback(HWND owner, const void *oldSram, size_t size)
+{
+    int yes;
+
+    wcsncpy(s_msgBoxText, CeLangIsJapanese()
+            ? L"\x30b2\x30fc\x30e0\x306e\x4e2d\x306e\x30bb\x30fc\x30d6\x304c\x3001\x30b9\x30c6\x30fc\x30c8\x30bb\x30fc\x30d6\x524d\x306e\x3001\n\x6700\x5f8c\x306e\x30bb\x30fc\x30d6\x306b\x623b\x308a\x307e\x3059\x3002\n(\x203b\x65b0\x3057\x3044\x30bb\x30fc\x30d6\x306f\x6d88\x3048\x307e\x3059\x3002)" /* ゲームの中のセーブが、ステートセーブ前の、(改行)最後のセーブに戻ります。(改行)(※新しいセーブは消えます。) */
+            : L"Your in-game save will go back to your last save before this state was made.",
+            CE_MSGBOX_MAX_TEXT - 1);
+    s_msgBoxText[CE_MSGBOX_MAX_TEXT - 1] = L'\0';
+
+    s_rbOldSram = oldSram;
+    s_rbOldSramSize = size;
+    yes = DialogBoxW(g_hInstance, MAKEINTRESOURCEW(IDD_CONFIRM_LONG), owner, SramRollbackDlgProc) == 1;
+    s_rbOldSram = NULL;
+    return yes;
 }
 
 /* ------------------------------------------------------------------ */
