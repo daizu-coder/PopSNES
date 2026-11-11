@@ -214,6 +214,10 @@
 #define IDD_FILEOPEN      3400
 #define IDC_FO_PATH       3401
 #define IDC_FO_LIST       3402
+/* "<<" / ">>" touch buttons - same page jump as the Left/Right keys
+ * (ce_fileopen.c's PageFileList()). */
+#define IDC_FO_PREV       3403
+#define IDC_FO_NEXT       3404
 
 /* Small Japanese-capable message dialog (CE/ce_res.rc's IDD_MSGBOX,
  * CeShowMsgBox()/MsgBoxDlgProc() in ce_main.c) - replaces MessageBoxW()

@@ -19,6 +19,10 @@
  * chars, ...) render as □ (U+25A1) here instead of silently collapsing
  * to a blank - user-supplied names must stay distinguishable and it
  * must be obvious when part of a name can't be shown.
+ *
+ * The "<<" / ">>" buttons (IDC_FO_PREV / IDC_FO_NEXT) do the Left/Right
+ * page jump by touch - user request, v1.3.0, ported from the sister
+ * PopGBA v1.2.0 / PopSG v1.3.0 (see PageFileList()).
  */
 #include "ce_fileopen.h"
 #include "ce_log.h"
@@ -73,7 +77,7 @@ static WNDPROC s_pFileListOrigProc = NULL;
  * device's owner-draw listbox (paging stopped wrapping, the target row
  * was not pulled to the top, and mid-list the keys degraded into a
  * one-row-at-a-time drift - PopGBA r61 hardware report). FillFileList()
- * resets this to 0; FileListCtrlProc() below is the only thing that
+ * resets this to 0; PageFileList() below is the only thing that
  * advances it (re-syncing from LB_GETCURSEL first so Up/Down moves
  * between page jumps are still respected). */
 static int s_fileListPage = 0;
@@ -88,7 +92,46 @@ static int s_fileListPage = 0;
  * even the final (short) page's first row to the top instead of the OS
  * clamping the scroll to keep the view full; the trailing LB_SETTOPINDEX
  * here is a second belt-and-suspenders shove for when LB_SETCURSEL's own
- * scroll-into-view still drags the view off the boundary. */
+ * scroll-into-view still drags the view off the boundary. The jump itself
+ * is PageFileList(), shared by the Left/Right keys (FileListCtrlProc) and
+ * the "<<" / ">>" buttons (FileOpenDlgProc). */
+static void PageFileList(HWND hWnd, BOOL forward)
+{
+    LRESULT count = SendMessage(hWnd, LB_GETCOUNT, 0, 0);
+    LRESULT cur;
+    int pageCount, newTop;
+
+    if (count <= 0)
+        return;
+
+    pageCount = ((int)count + CE_FILELIST_PAGE_SIZE - 1) / CE_FILELIST_PAGE_SIZE;
+
+    /* Re-sync from the live selection (Up/Down may have moved it
+     * since the last page jump), then step with wraparound. */
+    cur = SendMessage(hWnd, LB_GETCURSEL, 0, 0);
+    if (cur != LB_ERR)
+        s_fileListPage = (int)cur / CE_FILELIST_PAGE_SIZE;
+    if (s_fileListPage < 0 || s_fileListPage >= pageCount)
+        s_fileListPage = 0;
+
+    if (forward)
+        s_fileListPage = (s_fileListPage + 1) % pageCount;
+    else
+        s_fileListPage = (s_fileListPage + pageCount - 1) % pageCount;
+
+    newTop = s_fileListPage * CE_FILELIST_PAGE_SIZE;
+    if (newTop > (int)count - 1)
+        newTop = (int)count - 1;
+
+    /* LB_SETTOPINDEX first so newTop is already the top row by the
+     * time LB_SETCURSEL runs and its scroll-into-view has nothing to
+     * do; LB_SETTOPINDEX once more after in case it dragged the view
+     * off anyway. */
+    SendMessage(hWnd, LB_SETTOPINDEX, (WPARAM)newTop, 0);
+    SendMessage(hWnd, LB_SETCURSEL, (WPARAM)newTop, 0);
+    SendMessage(hWnd, LB_SETTOPINDEX, (WPARAM)newTop, 0);
+}
+
 static LRESULT CALLBACK FileListCtrlProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if (message == WM_GETDLGCODE)
@@ -107,39 +150,7 @@ static LRESULT CALLBACK FileListCtrlProc(HWND hWnd, UINT message, WPARAM wParam,
 
     if (message == WM_KEYDOWN && (wParam == VK_LEFT || wParam == VK_RIGHT))
     {
-        LRESULT count = SendMessage(hWnd, LB_GETCOUNT, 0, 0);
-        LRESULT cur;
-        int pageCount, newTop;
-
-        if (count <= 0)
-            return 0;
-
-        pageCount = ((int)count + CE_FILELIST_PAGE_SIZE - 1) / CE_FILELIST_PAGE_SIZE;
-
-        /* Re-sync from the live selection (Up/Down may have moved it
-         * since the last page jump), then step with wraparound. */
-        cur = SendMessage(hWnd, LB_GETCURSEL, 0, 0);
-        if (cur != LB_ERR)
-            s_fileListPage = (int)cur / CE_FILELIST_PAGE_SIZE;
-        if (s_fileListPage < 0 || s_fileListPage >= pageCount)
-            s_fileListPage = 0;
-
-        if (wParam == VK_RIGHT)
-            s_fileListPage = (s_fileListPage + 1) % pageCount;
-        else
-            s_fileListPage = (s_fileListPage + pageCount - 1) % pageCount;
-
-        newTop = s_fileListPage * CE_FILELIST_PAGE_SIZE;
-        if (newTop > (int)count - 1)
-            newTop = (int)count - 1;
-
-        /* LB_SETTOPINDEX first so newTop is already the top row by the
-         * time LB_SETCURSEL runs and its scroll-into-view has nothing to
-         * do; LB_SETTOPINDEX once more after in case it dragged the view
-         * off anyway. */
-        SendMessage(hWnd, LB_SETTOPINDEX, (WPARAM)newTop, 0);
-        SendMessage(hWnd, LB_SETCURSEL, (WPARAM)newTop, 0);
-        SendMessage(hWnd, LB_SETTOPINDEX, (WPARAM)newTop, 0);
+        PageFileList(hWnd, wParam == VK_RIGHT);
         return 0;
     }
 
@@ -445,7 +456,7 @@ static INT_PTR CALLBACK FileOpenDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPAR
             return TRUE;
         }
 
-        CeBmpFontDrawOwnerButton(dis); /* IDOK */
+        CeBmpFontDrawOwnerButton(dis); /* IDOK, IDC_FO_PREV, IDC_FO_NEXT */
         return TRUE;
     }
 
@@ -469,6 +480,23 @@ static INT_PTR CALLBACK FileOpenDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPAR
         {
             if (EnterSelected(hDlg))
                 EndDialog(hDlg, IDOK);
+            return TRUE;
+        }
+        if (LOWORD(wParam) == IDC_FO_PREV || LOWORD(wParam) == IDC_FO_NEXT)
+        {
+            HWND hList = GetDlgItem(hDlg, IDC_FO_LIST);
+
+            PageFileList(hList, LOWORD(wParam) == IDC_FO_NEXT);
+
+            /* Tapping a button gives it the focus and can make it the
+             * dialog's default button, so the direction keys would stop
+             * reaching the list and the decide key (Enter) would page
+             * instead of opening. Put IDOK back as the default and the
+             * focus back on the list, then once more from a posted
+             * message (same race as WM_SETLISTFOCUS's own comment). */
+            SendMessage(hDlg, DM_SETDEFID, IDOK, 0);
+            SetFocus(hList);
+            PostMessage(hDlg, WM_SETLISTFOCUS, 0, 0);
             return TRUE;
         }
         if (LOWORD(wParam) == IDCANCEL)
